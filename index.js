@@ -13,7 +13,7 @@ const BLUEPRINTS = [
   __dirname + '/blueprints/3.png',
   __dirname + '/blueprints/4.png',
   __dirname + '/blueprints/5.png',
-  __dirname + '/blueprints/6.jpg',
+  __dirname + '/blueprints/6.png',
 ];
 
 const storage = multer.diskStorage({
@@ -41,6 +41,9 @@ const checkBlueprints = async (image, blueprints, callback) => {
   const next = blueprints.shift();
   const compare = await sharp(next).resize(WIDTH).toBuffer();
   looksSame(image, compare, { tolerance: TOLERANCE }, (error, info) => {
+    if (error || !info) {
+      return callback(false);
+    }
     const { equal } = info;
     if (equal) {
       return callback(true);
