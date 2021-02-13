@@ -30,8 +30,12 @@ app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
-app.post('/', upload.single('picture'), async (req, res) => {
+app.post('/', upload.single('file'), async (req, res) => {
   if (req.file) {
+    if (req.file.mimetype.indexOf('image') === -1) {
+      res.sendFile(__dirname + '/bad.html');
+      return;
+    }
     const image1 = await sharp(req.file.path).resize(200).toBuffer();
     const image2 = await sharp(BLUEPRINT1).resize(200).toBuffer();
     const image3 = await sharp(BLUEPRINT2).resize(200).toBuffer();
