@@ -2,18 +2,21 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 const multer = require('multer');
-
 const looksSame = require('looks-same');
 const sharp = require('sharp');
 
-app.use(bodyParser.urlencoded({ extended: true }));
-
-const BLUEPRINT1 = __dirname + '/sauce.gif';
-const BLUEPRINT2 = __dirname + '/sauce.png';
-const BLUEPRINT3 = __dirname + '/sauce2.png';
 const TOLERANCE = 200;
+const WIDTH = 200;
+const BLUEPRINTS = [
+  __dirname + '/blueprints/1.gif',
+  __dirname + '/blueprints/2.gif',
+  __dirname + '/blueprints/3.png',
+  __dirname + '/blueprints/4.png',
+  __dirname + '/blueprints/5.png',
+  __dirname + '/blueprints/6.jpg',
+];
 
-var storage = multer.diskStorage({
+const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'uploads');
   },
@@ -22,13 +25,30 @@ var storage = multer.diskStorage({
   },
 });
 
-var upload = multer({ storage: storage });
+const upload = multer({ storage: storage });
 
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
 app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
 });
+
+const checkBlueprints = async (image, blueprints, callback) => {
+  if (blueprints.length === 0) {
+    return callback(false);
+  }
+  const next = blueprints.shift();
+  const compare = await sharp(next).resize(WIDTH).toBuffer();
+  looksSame(image, compare, { tolerance: TOLERANCE }, (error, info) => {
+    const { equal } = info;
+    if (equal) {
+      return callback(true);
+    } else {
+      checkBlueprints(image, blueprints, callback);
+    }
+  });
+};
 
 app.post('/', upload.single('file'), async (req, res) => {
   if (req.file) {
@@ -36,44 +56,10 @@ app.post('/', upload.single('file'), async (req, res) => {
       res.sendFile(__dirname + '/bad.html');
       return;
     }
-    const image1 = await sharp(req.file.path).resize(200).toBuffer();
-    const image2 = await sharp(BLUEPRINT1).resize(200).toBuffer();
-    const image3 = await sharp(BLUEPRINT2).resize(200).toBuffer();
-    const image4 = await sharp(BLUEPRINT3).resize(200).toBuffer();
-    looksSame(
-      image1,
-      image2,
-      { tolerance: TOLERANCE },
-      function (error, { equal }) {
-        if (equal) {
-          res.sendFile(__dirname + '/good.html');
-        } else {
-          looksSame(
-            image1,
-            image3,
-            { tolerance: TOLERANCE },
-            function (error, { equal }) {
-              if (equal) {
-                res.sendFile(__dirname + '/good.html');
-              } else {
-                looksSame(
-                  image1,
-                  image4,
-                  { tolerance: TOLERANCE },
-                  function (error, { equal }) {
-                    if (equal) {
-                      res.sendFile(__dirname + '/good.html');
-                    } else {
-                      res.sendFile(__dirname + '/bad.html');
-                    }
-                  }
-                );
-              }
-            }
-          );
-        }
-      }
-    );
+    const image = await sharp(req.file.path).resize(200).toBuffer();
+    checkBlueprints(image, [...BLUEPRINTS], (equal) => {
+      res.sendFile(__dirname + (equal ? '/good.html' : '/bad.html'));
+    });
   } else {
     res.sendFile(__dirname + '/index.html');
   }
