@@ -14,6 +14,11 @@
         height: 100%;
       }
 
+      @font-face {
+        font-family: 'The Ancient Language';
+        src: url('theancientlanguage.woff2') format('woff2');
+      }
+
       body {
         background: black url('tres-destinos.jpg') no-repeat center center fixed;
         background-size: cover;
@@ -25,7 +30,7 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        font-family: Arial, serif;
+        font-family: 'The Ancient Language';
       }
 
       button {
@@ -33,36 +38,42 @@
         background-color: maroon;
         color: white;
         padding: 14px 20px;
-        margin-top: 30px;
         border: none;
         border-radius: 4px;
         cursor: pointer;
+        font-family: 'The Ancient Language';
       }
 
       form {
         background: rgba(0, 0, 0, 0.5);
         padding: 30px;
         border-radius: 5px;
-        margin: 100px;
+        margin: 5vw;
         color: #e6c785;
         text-align: center;
+      }
+
+      input[type='file'] {
+        display: none;
       }
 
       label {
         display: block;
         font-size: 30px;
         margin-bottom: 30px;
+        cursor: pointer;
       }
     </style>
   </head>
   <body>
     <form action="/" enctype="multipart/form-data" method="POST">
       <label for="file"
-        >The road ahead is treacherous. How do you travel to the next
-        city?</label
+        >&#84;&#104;&#101;&#32;&#114;&#111;&#97;&#100;&#32;&#97;&#104;&#101;&#97;&#100;&#32;&#105;&#115;&#32;&#116;&#114;&#101;&#97;&#99;&#104;&#101;&#114;&#111;&#117;&#115;&period;&#32;&#72;&#111;&#119;&#32;&#100;&#111;&#32;&#121;&#111;&#117;&#32;&#116;&#114;&#97;&#118;&#101;&#108;&#32;&#116;&#111;&#32;&#116;&#104;&#101;&#32;&#110;&#101;&#120;&#116;&#32;&#99;&#105;&#116;&#121;&quest;</label
       >
-      <input type="file" name="file" />
-      <button type="submit">Choose wisely</button>
+      <input type="file" name="file" id="file" />
+      <button type="submit">
+        &#67;&#104;&#111;&#111;&#115;&#101;&#32;&#119;&#105;&#115;&#101;&#108;&#121;
+      </button>
     </form>
   </body>
 </html>
