@@ -4,6 +4,7 @@ const app = express();
 const multer = require('multer');
 const looksSame = require('looks-same');
 const sharp = require('sharp');
+const { unlinkSync } = require('fs');
 
 const TOLERANCE = 200;
 const WIDTH = 200;
@@ -59,8 +60,10 @@ app.post('/', upload.single('file'), async (req, res) => {
       res.sendFile(__dirname + '/bad.html');
       return;
     }
-    const image = await sharp(req.file.path).resize(200).toBuffer();
+    const { path } = req.file;
+    const image = await sharp(path).resize(200).toBuffer();
     checkBlueprints(image, [...BLUEPRINTS], (equal) => {
+      unlinkSync(path);
       res.sendFile(__dirname + (equal ? '/good.html' : '/bad.html'));
     });
   } else {
